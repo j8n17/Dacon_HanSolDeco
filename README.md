@@ -107,7 +107,7 @@ colab/
 │
 ├── rag/
 │   ├── vector_stores/    # 벡터 저장소 디렉토리
-│   │   └── faiss_index/  # FAISS 인덱스 파일 저장 디렉토리
+│   │   └── faiss_index/  # FAISS 인덱스
 │   ├── 50-local-rag_prompt.ipynb
 │   ├── 60-colab-llm_summary.ipynb
 │   ├── 70-local-answer_extract.ipynb
