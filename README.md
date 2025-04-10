@@ -71,7 +71,7 @@
     ```
     </details>
 
-3.  **[30-colab-structured_description.ipynb](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/preprocess/30-colab-structured_description.ipynb)**: LLM을 이용해 사고 정보 텍스트에서 '발생 배경', '사고 종류', '사고 원인' 등 구조화된 정보를 추출합니다. 이는 후속 RAG 단계에서 검색 효율성을 높이기 위함입니다.
+3.  **[30-colab-structured_description.ipynb](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/preprocess/30-colab-structured_description.ipynb)**: LLM을 이용해 사고 정보 텍스트에서 '발생 배경', '사고 종류', '사고 원인' 등 구조화된 정보를 추출합니다. 이는 후속 RAG 단계에서 검색 품질을 높이기 위함입니다.
     <details>
     <summary><b>프롬프트 예시</b></summary>
     
@@ -99,9 +99,9 @@
 
 ### 3.2. RAG
 
-5.  **[50-local-rag_prompt.ipynb](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/rag/50-local-rag_prompt.ipynb)**: ‘발생 원인’을 쿼리로, '재발방지대책 및 향후조치계획'를 답변으로 사용해 유사 사고 사례의 QA를 검색하는 FAISS RAG 파이프라인을 구현합니다. 초기 검색(Retrieve)에서는 쿼리와 유사한 상위 25개의 결과를 검색하고, 이후 검색된 결과들의 답변과 대표 문장과의 유사도를 기준으로 결과를 재정렬(Reranking)하여 가장 높은 유사도, 중간, 그리고 낮은 유사도 답변를 가진 3개의 QA를 제공합니다. 이를 통해 LLM이 다양한 사례를 참고할 수 있도록 개선하였습니다.
+5.  **[50-local-rag_prompt.ipynb](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/rag/50-local-rag_prompt.ipynb)**: '발생 원인'을 쿼리로, '재발방지대책 및 향후조치계획'를 답변으로 사용해 유사 사고 사례의 QA를 검색하는 FAISS RAG 파이프라인을 구현합니다. 초기 검색(Retrieve)에서는 쿼리와 유사한 상위 25개의 결과를 검색하고, 이후 검색된 결과들의 답변과 대표 문장과의 유사도를 기준으로 결과를 재정렬(Reranking)하여 가장 높은 유사도, 중간, 그리고 낮은 유사도 답변을 가진 3개의 QA를 제공합니다. 이를 통해 LLM이 다양한 답변을 참고할 수 있도록 개선하였습니다.
 
-6.  **[60-colab-llm_summary.ipynb](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/rag/60-colab-llm_summary.ipynb)**: 검색된 QA정보를 바탕으로 Ollama LLM을 호출하여 답변을 N개 생성합니다.
+6.  **[60-colab-llm_summary.ipynb](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/rag/60-colab-llm_summary.ipynb)**: 검색된 3개의 QA 예시와 `base_answer`을 바탕으로 답변을 N개 생성합니다.
     <details>
     <summary><b>프롬프트 예시</b></summary>
 
@@ -149,19 +149,22 @@
     ```
     ````
 7.  **[70-local-answer_extract.ipynb](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/rag/70-local-answer_extract.ipynb)**: LLM이 생성한 JSON 텍스트에서 'answer'을 추출합니다. LLM이 지정된 답변 형식대로 응답하지 않았을 경우, 올바른 형식으로 답변할 때까지 반복적으로 재생성합니다.
-8.  **[80-local-answers_rerank.ipynb](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/rag/80-local-answers_rerank.ipynb)**: LLM이 생성한 N개의 답변과 25개의 Retrieve된 답변과의 코사인 유사도를 계산하여, N개의 답변 중 가장 높은 유사도를 가진 답변을 최종 결과로 선정합니다.
+8.  **[80-local-answers_rerank.ipynb](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/rag/80-local-answers_rerank.ipynb)**: LLM이 생성한 N개의 답변과 25개의 Retrieve된 답변과의 코사인 유사도를 계산하여, N개의 답변 중 가장 높은 유사도를 가진 답변을 최종 결과로 선정합니다. (BoN 방식)
 
 ---
 
 ## 4. 주요 실험 및 결과
 
-*   **초기 접근:** 훈련 데이터의 정답 문장 임베딩 후 코사인 유사도가 가장 높은 대표 문장을 사용하는 방식 (평균 0.7 유사도 달성).
-*   **군집화 시도:** 사고 정보 임베딩 기반 군집화는 벡터 경계 모호성 및 균일 분포로 인해 유의미한 군집 형성에 실패 (PCA 분석 결과 참고).
-*   **RAG Query 개선:** 단순 사고 정보 대신 LLM으로 추출한 '발생 원인'을 RAG 쿼리로 사용하여 검색 정확도 향상.
-*   **Reranking 도입:** 검색된 결과 중 대표 문장과 높은, 중간, 낮은 유사도 답변을 함께 제공하여 LLM이 다양한 케이스를 참고하도록 개선.
-*   **추론 속도 최적화:** 대량 테스트 데이터 추론 시 Ollama 병렬 처리(subprocess 활용)로 약 2배 속도 향상.
+*평가 지표: 유사도 점수 = 코사인 유사도 * 0.7 + 자카드 유사도 * 0.3*
 
-자세한 실험 및 분석 내용은 [DETAILS.md](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/DETAILS.md) 참고.
+*   **초기 접근 (0.5465):** 훈련 데이터의 정답 문장 임베딩 후, 코사인 유사도가 가장 높은 대표 문장을 사용하는 방식.
+*   **군집화 시도:** 사고 설명문 임베딩 기반 군집화는 벡터 공간에서의 경계 모호성 및 균일한 분포 등의 문제로 유의미한 군집 형성에 실패.
+*   **기본 RAG (0.4385):** '사고 원인' 컬럼을 쿼리로 사용하고, 사고 정보를 조합한 '사고 설명문'으로 Reranking하여 상위 5개 유사 사례를 LLM에 제공.
+*   **RAG + Base Answer (0.4701):** 이전 단계의 상위 5개 사례를 3개로 줄이고, 초기 접근에서 찾은 '대표 문장'을 LLM 프롬프트에 `base_answer`로 추가 제공. LLM 답변의 방향성을 제시하여 성능이 개선되었습니다.
+*   **JSON을 이용한 정보 추출 및 정제 (0.4899):** LLM을 통해 JSON으로 생성된 구조화된 정보('발생 배경', '사고 종류', '사고 원인') 중 '사고 원인'을 쿼리로 사용하고, '구조화된 설명문'으로 Reranking하여 상위 3개 유사 사례를 LLM에 제공. 기존 '사고 원인' 컬럼에서 사고 원인이 아닌 불필요 요소를 제거해 RAG Query와 Reranking 문서의 품질이 개선되었습니다.
+*   **다양한 답변 제공 RAG (0.4951):** '구조화된 설명문'을 쿼리로 사용하고, 검색된 결과들의 답변과 '대표 문장' 간 유사도를 기준으로 Reranking하여 상위 1개, 중간 1개, 하위 1개, 총 3개의 다양한 답변을 LLM에 제공. LLM이 더 다양한 답변을 참고하여 답변을 생성하도록 유도했습니다.
+
+자세한 분석 및 실험, 프로젝트 관리 등에 관한 내용은 [DETAILS.md](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/DETAILS.md) 참고.
 
 ---
 
@@ -169,7 +172,7 @@
 
 *   **프롬프트 엔지니어링:** 명확하고 간결한 프롬프트, 특히 JSON 형식 출력 지시는 sLLM 활용 및 후속 처리 효율화에 중요. 핵심 정보 추출이 모델 성능에 큰 영향.
 *   **임베딩/군집화:** 데이터 특성에 맞는 임베딩 전략과 군집화 기법 선택의 중요성 확인. 단순 적용의 한계 인지.
-*   **RAG 전략:** 단순 유사도 검색을 넘어, 검색 결과의 품질과 다양성을 높이는 재랭킹(Reranking) 등 후처리 전략이 효과적.
+*   **RAG 전략:** 단순 유사도 검색을 넘어, 쿼리 품질 향상, 검색 결과의 품질과 다양성을 높이는 재랭킹(Reranking) 등 전/후처리 전략이 효과적.
 *   **성능 최적화:** 대규모 데이터 처리 시 I/O 병목 현상 등 성능 저하 요인을 파악하고 병렬 처리 등 최적화 기법 적용 필요.
 *   **향후 방향:**
     *   임베딩 벡터의 특성에 맞는 군집화 방법 탐색 및 적용.
