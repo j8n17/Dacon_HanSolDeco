@@ -53,24 +53,25 @@
 
 ### 3.1. 전처리 ([`preprocess/`](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/preprocess))
 
-1.  **[`10-local-formatting.ipynb`](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/preprocess/10-local-formatting.ipynb)**: 초기 데이터 로딩 및 기본 형식 정리 작업을 수행합니다.
-2.  **[`20-colab-spelling_correction.ipynb`](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/preprocess/20-colab-spelling_correction.ipynb)**: 텍스트 데이터의 품질 향상을 위해 오탈자를 수정합니다.
+1.  **[10-local-formatting.ipynb](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/preprocess/10-local-formatting.ipynb)**: 초기 데이터 로딩 및 기본 형식 정리 작업을 수행합니다.
+2.  **[20-colab-spelling_correction.ipynb](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/preprocess/20-colab-spelling_correction.ipynb)**: 텍스트 데이터의 품질 향상을 위해 오탈자를 수정합니다.
     <details>
     <summary><b>프롬프트 예시</b></summary>
 
-    > 당신은 맞춤법 수정 전문가입니다. 제공될 문장의 맞춤법을 수정하되, 형식을 유지하고 추가적인 정보를 생성하지 마세요.
-    > 
-    > 문장: "넘어짐 사고 (사고자가 보행로가 아닌 콘크리트 L형 측구 양생을 위해 덮어둔 천막위를 걷다가 집수정(맨홀) 개구부를 <span style="color:red">밝아</span> 실족하여 상해 발생)"
-    > 
-    > 수정: 
+    ```
+    당신은 맞춤법 수정 전문가입니다. 제공될 문장의 맞춤법을 수정하되, 형식을 유지하고 추가적인 정보를 생성하지 마세요.
+    문장: "넘어짐 사고 (사고자가 보행로가 아닌 콘크리트 L형 측구 양생을 위해 덮어둔 천막위를 걷다가 집수정(맨홀) 개구부를 밝아 실족하여 상해 발생)"
+    수정: 
+    ```
 
     **LLM 답변**
 
-    > 넘어짐 사고(사고자는 보행로가 아닌 콘크리트 L형 측구 양생을 위해 덮어둔 천막 위를 걷다가 집수정(맨홀) 개구부를 <span style="color:red">밟아</span> 실족하여 상해 발생)
-
+    ```
+    넘어짐 사고(사고자는 보행로가 아닌 콘크리트 L형 측구 양생을 위해 덮어둔 천막 위를 걷다가 집수정(맨홀) 개구부를 밟아 실족하여 상해 발생)
+    ```
     </details>
 
-3.  **[`30-colab-structured_description.ipynb`](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/preprocess/30-colab-structured_description.ipynb)**: LLM을 이용해 사고 정보 텍스트에서 '발생 배경', '사고 종류', '사고 원인' 등 구조화된 정보를 추출합니다. 이는 후속 RAG 단계에서 검색 효율성을 높이기 위함입니다.
+3.  **[30-colab-structured_description.ipynb](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/preprocess/30-colab-structured_description.ipynb)**: LLM을 이용해 사고 정보 텍스트에서 '발생 배경', '사고 종류', '사고 원인' 등 구조화된 정보를 추출합니다. 이는 후속 RAG 단계에서 검색 효율성을 높이기 위함입니다.
     <details>
     <summary><b>프롬프트 예시</b></summary>
     
@@ -94,13 +95,13 @@
     ```
     ````
     </details>
-4.  **[`40-local-reason_extract.ipynb`](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/preprocess/40-local-reason_extract.ipynb)**: LLM의 JSON 출력에서 '발생 배경', '사고 종류', 특히 RAG 검색의 핵심 키가 될 '발생 원인' 정보를 추출합니다.
+4.  **[40-local-reason_extract.ipynb](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/preprocess/40-local-reason_extract.ipynb)**: LLM의 JSON 출력에서 '발생 배경', '사고 종류', 특히 RAG 검색의 핵심 키가 될 '발생 원인' 정보를 추출합니다.
 
 ### 3.2. RAG ([`rag/`](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/rag))
 
-5.  **[`50-local-rag_prompt.ipynb`](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/rag/50-local-rag_prompt.ipynb)**: ‘발생 원인’을 쿼리로, '재발방지대책 및 향후조치계획'를 답변으로 사용해 유사 사고 사례의 QA를 검색하는 FAISS RAG 파이프라인을 구현합니다. 초기 검색(Retrieve)에서는 쿼리와 유사한 상위 25개의 결과를 검색하고, 이후 검색된 결과들의 답변과 대표 문장과의 유사도를 기준으로 결과를 재정렬(Reranking)하여 가장 높은 유사도, 중간, 그리고 낮은 유사도 답변를 가진 3개의 QA를 제공합니다. 이를 통해 LLM이 다양한 사례를 참고할 수 있도록 개선하였습니다.
+5.  **[50-local-rag_prompt.ipynb](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/rag/50-local-rag_prompt.ipynb)**: ‘발생 원인’을 쿼리로, '재발방지대책 및 향후조치계획'를 답변으로 사용해 유사 사고 사례의 QA를 검색하는 FAISS RAG 파이프라인을 구현합니다. 초기 검색(Retrieve)에서는 쿼리와 유사한 상위 25개의 결과를 검색하고, 이후 검색된 결과들의 답변과 대표 문장과의 유사도를 기준으로 결과를 재정렬(Reranking)하여 가장 높은 유사도, 중간, 그리고 낮은 유사도 답변를 가진 3개의 QA를 제공합니다. 이를 통해 LLM이 다양한 사례를 참고할 수 있도록 개선하였습니다.
 
-6.  **[`60-colab-llm_summary.ipynb`](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/rag/60-colab-llm_summary.ipynb)**: 검색된 QA정보를 바탕으로 Ollama LLM을 호출하여 답변을 N개 생성합니다.
+6.  **[60-colab-llm_summary.ipynb](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/rag/60-colab-llm_summary.ipynb)**: 검색된 QA정보를 바탕으로 Ollama LLM을 호출하여 답변을 N개 생성합니다.
     <details>
     <summary><b>프롬프트 예시</b></summary>
 
@@ -147,8 +148,8 @@
     }
     ```
     ````
-7.  **[`70-local-answer_extract.ipynb`](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/rag/70-local-answer_extract.ipynb)**: LLM이 생성한 JSON 텍스트에서 'answer'을 추출합니다. LLM이 지정된 답변 형식대로 응답하지 않았을 경우, 올바른 형식으로 답변할 때까지 반복적으로 재생성합니다.
-8.  **[`80-local-answers_rerank.ipynb`](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/rag/80-local-answers_rerank.ipynb)**: LLM이 생성한 N개의 답변과 25개의 Retrieve된 답변과의 코사인 유사도를 계산하여, N개의 답변 중 가장 높은 유사도를 가진 답변을 최종 결과로 선정합니다.
+7.  **[70-local-answer_extract.ipynb](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/rag/70-local-answer_extract.ipynb)**: LLM이 생성한 JSON 텍스트에서 'answer'을 추출합니다. LLM이 지정된 답변 형식대로 응답하지 않았을 경우, 올바른 형식으로 답변할 때까지 반복적으로 재생성합니다.
+8.  **[80-local-answers_rerank.ipynb](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/rag/80-local-answers_rerank.ipynb)**: LLM이 생성한 N개의 답변과 25개의 Retrieve된 답변과의 코사인 유사도를 계산하여, N개의 답변 중 가장 높은 유사도를 가진 답변을 최종 결과로 선정합니다.
 
 ---
 
@@ -219,4 +220,4 @@ Dacon_HanSolDeco/
 *   **데이터 처리:** Pandas, Numpy
 *   **기타 라이브러리:** Scikit-learn (PCA 등), HuggingFace Transformers/Sentence-Transformers (임베딩 모델 로딩 등)
 
-(참고: `settings.py` 및 각 Notebook의 import 구문을 통해 더 상세한 라이브러리 확인 가능)
+(참고: [settings.py](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/settings.py) 및 각 Notebook의 import 구문을 통해 더 상세한 라이브러리 확인 가능)
