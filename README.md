@@ -204,7 +204,8 @@ Dacon_HanSolDeco/
 │   ├── faiss_utils.py
 │   └── utils.py
 │
-├── settings.py         # Colab 환경 설정 스크립트 (Ollama, 라이브러리 설치 등)
+├── settings.py         # Colab 환경 설정 스크립트 (Ollama, requirements 설치 등)
+├── requirements.txt
 └── README.md
 ```
 
@@ -216,7 +217,7 @@ Dacon_HanSolDeco/
 *   **환경:** Jupyter Notebook / Google Colab
 *   **LLM:** Ollama (로컬 구동 LLM)
 *   **RAG 프레임워크:** Langchain
-*   **벡터 검색:** FAISS (CPU/GPU)
+*   **벡터 검색:** FAISS (CPU)
 *   **데이터 처리:** Pandas, Numpy
 *   **기타 라이브러리:** Scikit-learn (PCA 등), HuggingFace Transformers/Sentence-Transformers (임베딩 모델 로딩 등)
 
