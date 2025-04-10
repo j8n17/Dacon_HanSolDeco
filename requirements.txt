@@ -1,0 +1,4 @@
+langchain-community
+langchain-ollama
+faiss-cpu
+langchain-huggingface 

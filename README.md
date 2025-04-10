@@ -51,7 +51,7 @@
 
 본 프로젝트의 전체 파이프라인은 아래의 Jupyter Notebook들을 순차적으로 실행하며 진행됩니다.
 
-### 3.1. 전처리 ([`preprocess/`](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/preprocess))
+### 3.1. 전처리
 
 1.  **[10-local-formatting.ipynb](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/preprocess/10-local-formatting.ipynb)**: 초기 데이터 로딩 및 기본 형식 정리 작업을 수행합니다.
 2.  **[20-colab-spelling_correction.ipynb](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/preprocess/20-colab-spelling_correction.ipynb)**: 텍스트 데이터의 품질 향상을 위해 오탈자를 수정합니다.
@@ -97,7 +97,7 @@
     </details>
 4.  **[40-local-reason_extract.ipynb](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/preprocess/40-local-reason_extract.ipynb)**: LLM의 JSON 출력에서 '발생 배경', '사고 종류', 특히 RAG 검색의 핵심 키가 될 '발생 원인' 정보를 추출합니다.
 
-### 3.2. RAG ([`rag/`](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/rag))
+### 3.2. RAG
 
 5.  **[50-local-rag_prompt.ipynb](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/rag/50-local-rag_prompt.ipynb)**: ‘발생 원인’을 쿼리로, '재발방지대책 및 향후조치계획'를 답변으로 사용해 유사 사고 사례의 QA를 검색하는 FAISS RAG 파이프라인을 구현합니다. 초기 검색(Retrieve)에서는 쿼리와 유사한 상위 25개의 결과를 검색하고, 이후 검색된 결과들의 답변과 대표 문장과의 유사도를 기준으로 결과를 재정렬(Reranking)하여 가장 높은 유사도, 중간, 그리고 낮은 유사도 답변를 가진 3개의 QA를 제공합니다. 이를 통해 LLM이 다양한 사례를 참고할 수 있도록 개선하였습니다.
 
@@ -220,4 +220,4 @@ Dacon_HanSolDeco/
 *   **데이터 처리:** Pandas, Numpy
 *   **기타 라이브러리:** Scikit-learn (PCA 등), HuggingFace Transformers/Sentence-Transformers (임베딩 모델 로딩 등)
 
-(참고: [settings.py](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/settings.py) 및 각 Notebook의 import 구문을 통해 더 상세한 라이브러리 확인 가능)
+자세한 내용은 [settings.py](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/settings.py), [requirements.txt](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/requirements.txt) 참고.
