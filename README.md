@@ -13,7 +13,7 @@
 **목차**
 1.  [프로젝트 개요](#1-프로젝트-개요)
 2.  [데이터 구성](#2-데이터-구성)
-3.  [개발 워크플로우 (Notebooks)](#3-개발-워크플로우-notebooks)
+3.  [최종 파이프라인 (Notebooks)](#3-최종-파이프라인-notebooks)
 4.  [주요 실험 및 결과](#4-주요-실험-및-결과)
 5.  [핵심 교훈 및 개선 방향](#5-핵심-교훈-및-개선-방향)
 6.  [파일 구조](#6-파일-구조)
@@ -47,18 +47,16 @@
 
 ---
 
-## 3. 개발 워크플로우 (Notebooks)
+## 3. 최종 파이프라인 (Notebooks)
 
-본 프로젝트의 전체 개발 과정은 아래의 Jupyter Notebook들을 순차적으로 실행하며 진행됩니다.
+본 프로젝트의 전체 파이프라인은 아래의 Jupyter Notebook들을 순차적으로 실행하며 진행됩니다.
 
-### 3.1. 전처리 (`preprocess/`)
+### 3.1. 전처리 ([`preprocess/`](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/preprocess))
 
-1.  **`10-local-formatting.ipynb`**: 초기 데이터 로딩 및 기본 형식 정리 작업을 수행합니다.
-2.  **`20-colab-spelling_correction.ipynb`**: 텍스트 데이터의 품질 향상을 위해 오탈자를 수정합니다.
+1.  **[`10-local-formatting.ipynb`](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/preprocess/10-local-formatting.ipynb)**: 초기 데이터 로딩 및 기본 형식 정리 작업을 수행합니다.
+2.  **[`20-colab-spelling_correction.ipynb`](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/preprocess/20-colab-spelling_correction.ipynb)**: 텍스트 데이터의 품질 향상을 위해 오탈자를 수정합니다.
     <details>
-    <summary>프롬프트 예시</summary>
-
-    **프롬프트**
+    <summary><b>프롬프트 예시</b></summary>
 
     > 당신은 맞춤법 수정 전문가입니다. 제공될 문장의 맞춤법을 수정하되, 형식을 유지하고 추가적인 정보를 생성하지 마세요.
     > 
@@ -68,25 +66,21 @@
 
     **LLM 답변**
 
-    > 넘어짐 사고(사고자는 보행로가 아닌 콘크리트 L형 측구 양생을 위해 덮어둔 천막 위를 걷다가 집수정(맨홀) 개구부를 밟아 실족하여 상해 발생)
+    > 넘어짐 사고(사고자는 보행로가 아닌 콘크리트 L형 측구 양생을 위해 덮어둔 천막 위를 걷다가 집수정(맨홀) 개구부를 <span style="color:red">밟아</span> 실족하여 상해 발생)
 
     </details>
 
-3.  **`30-colab-structured_description.ipynb`**: 사고 정보 텍스트에서 '사고 배경', '사고 결과', '발생 원인' 등 구조화된 정보를 LLM을 이용해 추출합니다. 이는 후속 RAG 단계에서 검색 효율성을 높이기 위함입니다.
+3.  **[`30-colab-structured_description.ipynb`](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/preprocess/30-colab-structured_description.ipynb)**: LLM을 이용해 사고 정보 텍스트에서 '발생 배경', '사고 종류', '사고 원인' 등 구조화된 정보를 추출합니다. 이는 후속 RAG 단계에서 검색 효율성을 높이기 위함입니다.
     <details>
-    <summary>프롬프트 예시</summary>
-
-    **프롬프트**
+    <summary><b>프롬프트 예시</b></summary>
     
-    > 한국 건설 공사 안전 사고 관련 문장을 언어 모델에 사용하기 위해 전처리하려 합니다.
-    > 
-    > 사고가 발생한 배경과 핵심적인 피해 내용, 사고 원인을 도출하고, "발생 배경, 사고 종류, 사고 원인"을 json 형식으로 핵심적인 내용만 간결히 정리해주세요.
-    > 
-    > 추가적인 정보를 임의로 추론하거나 생성하지 말고, 원문에 주어진 정보만을 반영하세요.
-    > 
-    > 제공될 문장은 [문장: "사고 종류 (사고 설명 또는 원인)"] 형식으로 제공됩니다.
-    > 
-    > 문장: "설치작업 중 넘어짐 사고 (크레인 이용 작업 중 줄걸이에 작업자 생명줄이 걸려 중심을 잃고 인접 시스템 동바리 자재에 부딪혀 부상)"
+    ```
+    한국 건설 공사 안전 사고 관련 문장을 언어 모델에 사용하기 위해 전처리하려 합니다.
+    사고가 발생한 배경과 핵심적인 피해 내용, 사고 원인을 도출하고, "발생 배경, 사고 종류, 사고 원인"을 json 형식으로 핵심적인 내용만 간결히 정리해주세요.
+    추가적인 정보를 임의로 추론하거나 생성하지 말고, 원문에 주어진 정보만을 반영하세요.
+    제공될 문장은 [문장: "사고 종류 (사고 설명 또는 원인)"] 형식으로 제공됩니다.
+    문장: "설치작업 중 넘어짐 사고 (크레인 이용 작업 중 줄걸이에 작업자 생명줄이 걸려 중심을 잃고 인접 시스템 동바리 자재에 부딪혀 부상)"
+    ```
 
     **LLM 답변**
 
@@ -100,16 +94,15 @@
     ```
     ````
     </details>
-4.  **`40-local-reason_extract.ipynb`**: 구조화된 정보 중 특히 RAG 검색의 핵심 키가 될 '발생 원인' 정보를 추출하고 정제합니다.
+4.  **[`40-local-reason_extract.ipynb`](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/preprocess/40-local-reason_extract.ipynb)**: LLM의 JSON 출력에서 '발생 배경', '사고 종류', 특히 RAG 검색의 핵심 키가 될 '발생 원인' 정보를 추출합니다.
 
-### 3.2. RAG 및 생성 (`rag/`)
+### 3.2. RAG ([`rag/`](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/rag))
 
-5.  **`50-local-rag_prompt.ipynb`**: FAISS를 활용한 벡터 검색 시스템을 구축/로드하고, '발생 원인'을 쿼리로 사용하여 유사 사고 사례의 정답 문장을 검색하는 RAG 파이프라인을 구현합니다. 검색된 결과 중 가장 유사한 답변 외 중간, 낮은 유사도 답변을 함께 제공하여 LLM이 다양한 케이스를 참고하도록 개선했습니다. 초기 검색(Retrieve)은 상위 25개를 가져오며, 이 중 유사도가 높은 상위, 중간, 하위를 1개씩 선택하여 총 3개로 재랭킹(Reranking)합니다.
-6.  **`60-colab-llm_summary.ipynb`**: 검색된 정보를 바탕으로 Ollama LLM을 호출하여 예방/조치 계획을 N개 생성합니다.
+5.  **[`50-local-rag_prompt.ipynb`](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/rag/50-local-rag_prompt.ipynb)**: ‘발생 원인’을 쿼리로, '재발방지대책 및 향후조치계획'를 답변으로 사용해 유사 사고 사례의 QA를 검색하는 FAISS RAG 파이프라인을 구현합니다. 초기 검색(Retrieve)에서는 쿼리와 유사한 상위 25개의 결과를 검색하고, 이후 검색된 결과들의 답변과 대표 문장과의 유사도를 기준으로 결과를 재정렬(Reranking)하여 가장 높은 유사도, 중간, 그리고 낮은 유사도 답변를 가진 3개의 QA를 제공합니다. 이를 통해 LLM이 다양한 사례를 참고할 수 있도록 개선하였습니다.
+
+6.  **[`60-colab-llm_summary.ipynb`](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/rag/60-colab-llm_summary.ipynb)**: 검색된 QA정보를 바탕으로 Ollama LLM을 호출하여 답변을 N개 생성합니다.
     <details>
-    <summary>프롬프트 예시</summary>
-
-    **프롬프트**
+    <summary><b>프롬프트 예시</b></summary>
 
     ````
     아래의 모범 답안 예시를 참고해 answer을 작성해주세요. 각각의 answer은 모두 question과 base_answer을 반영해 만든 결과입니다. 결과는 ""user_question""만 json으로 출력해주세요.
@@ -154,8 +147,8 @@
     }
     ```
     ````
-7.  **`70-local-answer_extract.ipynb`**: LLM이 생성한 JSON 텍스트에서 'answer'을 추출합니다. LLM이 지정된 답변 형식대로 응답하지 않았을 경우, 올바른 형식으로 답변할 때까지 반복적으로 재시도합니다.
-8.  **`80-local-answers_rerank.ipynb`**: LLM이 생성한 N개의 답변과 25개의 Retrieve한 답변과의 코사인 유사도를 계산하여, 가장 높은 유사도를 가진 답변을 최종 결과로 선정합니다.
+7.  **[`70-local-answer_extract.ipynb`](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/rag/70-local-answer_extract.ipynb)**: LLM이 생성한 JSON 텍스트에서 'answer'을 추출합니다. LLM이 지정된 답변 형식대로 응답하지 않았을 경우, 올바른 형식으로 답변할 때까지 반복적으로 재생성합니다.
+8.  **[`80-local-answers_rerank.ipynb`](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/rag/80-local-answers_rerank.ipynb)**: LLM이 생성한 N개의 답변과 25개의 Retrieve된 답변과의 코사인 유사도를 계산하여, N개의 답변 중 가장 높은 유사도를 가진 답변을 최종 결과로 선정합니다.
 
 ---
 
@@ -166,6 +159,8 @@
 *   **RAG Query 개선:** 단순 사고 정보 대신 LLM으로 추출한 '발생 원인'을 RAG 쿼리로 사용하여 검색 정확도 향상.
 *   **Reranking 도입:** 검색된 결과 중 대표 문장과 높은, 중간, 낮은 유사도 답변을 함께 제공하여 LLM이 다양한 케이스를 참고하도록 개선.
 *   **추론 속도 최적화:** 대량 테스트 데이터 추론 시 Ollama 병렬 처리(subprocess 활용)로 약 2배 속도 향상.
+
+자세한 실험 및 분석 내용은 [DETAILS.md](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/DETAILS.md) 참고.
 
 ---
 
@@ -179,13 +174,14 @@
     *   임베딩 벡터의 특성에 맞는 군집화 방법 탐색 및 적용.
     *   지속적인 RAG 검색/재랭킹 전략 개선.
     *   CPU-GPU 간 데이터 전송 등 추론 병목 현상 추가 분석 및 최적화.
+    *   Jupyter Notebook으로 구성된 파이프라인을 통합하여, 단일 스크립트로 실행 가능한 형태로 구축.
 
 ---
 
 ## 6. 파일 구조
 
 ```
-colab/
+Dacon_HanSolDeco/
 ├── data/
 │   ├── train.csv
 │   └── test.csv
