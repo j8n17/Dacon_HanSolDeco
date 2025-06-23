@@ -13,11 +13,12 @@
 **목차**
 1.  [프로젝트 개요](#1-프로젝트-개요)
 2.  [데이터 구성](#2-데이터-구성)
-3.  [최종 파이프라인 (Notebooks)](#3-최종-파이프라인-notebooks)
-4.  [주요 실험 및 결과](#4-주요-실험-및-결과)
-5.  [핵심 교훈 및 개선 방향](#5-핵심-교훈-및-개선-방향)
-6.  [파일 구조](#6-파일-구조)
-7.  [사용된 주요 기술](#7-사용된-주요-기술)
+3.  [모델 선택](#3-모델-선택)
+4.  [최종 파이프라인 (Notebooks)](#4-최종-파이프라인-notebooks)
+5.  [주요 실험 및 결과](#5-주요-실험-및-결과)
+6.  [핵심 교훈 및 개선 방향](#6-핵심-교훈-및-개선-방향)
+7.  [파일 구조](#7-파일-구조)
+8.  [사용된 주요 기술](#8-사용된-주요-기술)
 
 ---
 
@@ -47,11 +48,24 @@
 
 ---
 
-## 3. 최종 파이프라인 (Notebooks)
+## 3. 모델 선택
+
+* **모델 선택**
+    Google Gemma 3 계열 중 [gemma3:4b](https://ollama.com/library/gemma3%3A4b?utm_source=chatgpt.com) (instruction-tuned) 모델을 사용했습니다.
+    * 128 K 토큰 컨텍스트 윈도우
+    * 멀티모달 입력(텍스트 + 이미지) 및 140+ 개 언어 지원
+    * 단일 GPU에서도 구동 가능한 경량 설계
+
+* **모델 선택 이유**
+    한국어 처리 성능을 중점적으로 실험한 결과, Gemma3:4B가 한국어 문장 이해 및 생성에서 우수한 품질을 보여 선택하였습니다.
+
+---
+
+## 4. 최종 파이프라인 (Notebooks)
 
 본 프로젝트의 전체 파이프라인은 아래의 Jupyter Notebook들을 순차적으로 실행하며 진행됩니다.
 
-### 3.1. 전처리
+### 4.1. 전처리
 
 1.  **[10-local-formatting.ipynb](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/preprocess/10-local-formatting.ipynb)**: 초기 데이터 로딩 및 기본 형식 정리 작업을 수행합니다.
 2.  **[20-colab-spelling_correction.ipynb](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/preprocess/20-colab-spelling_correction.ipynb)**: 텍스트 데이터의 품질 향상을 위해 오탈자를 수정합니다.
@@ -97,7 +111,7 @@
     </details>
 4.  **[40-local-reason_extract.ipynb](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/preprocess/40-local-reason_extract.ipynb)**: LLM의 JSON 출력에서 '발생 배경', '사고 종류', 특히 RAG 검색의 핵심 키가 될 '발생 원인' 정보를 추출합니다.
 
-### 3.2. RAG
+### 4.2. RAG
 
 5.  **[50-local-rag_prompt.ipynb](https://github.com/j8n17/Dacon_HanSolDeco/blob/main/rag/50-local-rag_prompt.ipynb)**: '발생 원인'을 쿼리로, '재발방지대책 및 향후조치계획'를 답변으로 사용해 유사 사고 사례의 QA를 검색하는 FAISS RAG 파이프라인을 구현합니다. 초기 검색(Retrieve)에서는 쿼리와 유사한 상위 25개의 결과를 검색하고, 이후 검색된 결과들의 답변과 대표 문장과의 유사도를 기준으로 결과를 재정렬(Reranking)하여 가장 높은 유사도, 중간, 그리고 낮은 유사도 답변을 가진 3개의 QA를 제공합니다. 이를 통해 LLM이 다양한 답변을 참고할 수 있도록 개선하였습니다.
 
@@ -153,7 +167,7 @@
 
 ---
 
-## 4. 주요 실험 및 결과
+## 5. 주요 실험 및 결과
 
 *평가 지표: 유사도 점수 = 코사인 유사도 * 0.7 + 자카드 유사도 * 0.3*
 
@@ -168,7 +182,7 @@
 
 ---
 
-## 5. 핵심 교훈 및 개선 방향
+## 6. 핵심 교훈 및 개선 방향
 
 *   **프롬프트 엔지니어링:** 명확하고 간결한 프롬프트, 특히 JSON 형식 출력 지시는 sLLM 활용 및 후속 처리 효율화에 중요. 핵심 정보 추출이 모델 성능에 큰 영향.
 *   **임베딩/군집화:** 데이터 특성에 맞는 임베딩 전략과 군집화 기법 선택의 중요성 확인. 단순 적용의 한계 인지.
@@ -182,7 +196,7 @@
 
 ---
 
-## 6. 파일 구조
+## 7. 파일 구조
 
 ```
 Dacon_HanSolDeco/
@@ -214,7 +228,7 @@ Dacon_HanSolDeco/
 
 ---
 
-## 7. 사용된 주요 기술
+## 8. 사용된 주요 기술
 
 *   **언어:** Python 3.8+
 *   **환경:** Jupyter Notebook / Google Colab
